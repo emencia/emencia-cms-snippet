@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='snippet',
+    name='emencia-cms-snippet',
     version=__import__('snippet').__version__,
     description=__import__('snippet').__doc__,
     long_description=open('README.rst').read(),
