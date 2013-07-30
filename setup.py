@@ -22,7 +22,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     install_requires=[
-        'django-cms==2.3.6',
+        'django-cms==2.3',
         'djangocms_text_ckeditor==1.0.10',
     ],
     include_package_data=True,
