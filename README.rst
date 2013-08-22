@@ -1,5 +1,4 @@
 .. _DjangoCMS: https://www.django-cms.org
-.. _djangocms_text_ckeditor: https://github.com/divio/djangocms-text-ckeditor
 
 snippet
 =======
@@ -14,13 +13,13 @@ Changes from original code
 This clone try to change as few orignal code as possible, actually the differences are :
 
 * Adding a template tag to directly use snippet fragments in the templates, not only from CMS pages;
-* Changing ``Snippet`` model to bind ``djangocms_text_ckeditor.fields.HTMLField`` on the field ``html``;
 
 Requires
 --------
 
 * `DjangoCMS`_ version >= 2.3 (tested with 2.3.6) (should not work with >= 3.x);
-* `djangocms_text_ckeditor`_ version 1.0.10;
+
+Previously it required `djangocms_text_ckeditor <https://github.com/divio/djangocms-text-ckeditor>`_, but it has been deprecated, wyswyg is not really useful for snippet where we need to insert any valid HTML. Something more accurate like Codemirror should be used instead in the future.
 
 Install
 -------
@@ -55,8 +54,3 @@ Like this : ::
     {% snippet_fragment 42 %}
     
 The required argument is for the Snippet ID or a Snippet instance if you want.
-
-Snippet html field
-..................
-
-You don't need to do nothing, the CKEditor should automatically take in place of the textarea input.

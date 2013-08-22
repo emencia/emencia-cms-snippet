@@ -2,7 +2,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from cms.models import CMSPlugin
 from cms.utils.helpers import reversion_register
-from djangocms_text_ckeditor.fields import HTMLField
 
 # Stores the actual data
 class Snippet(models.Model):
@@ -10,7 +9,8 @@ class Snippet(models.Model):
     A snippet of HTML or a Django template
     """
     name = models.CharField(_("name"), max_length=255, unique=True)
-    html = HTMLField(_("HTML"), blank=True)
+    html = models.TextField(_('HTML'), blank=False)
+
     template = models.CharField(_("template"), max_length=50, blank=True, \
         help_text=_('Enter a template (i.e. "snippets/plugin_xy.html") which will be rendered. ' + \
         'If "template" is given, the contents of field "HTML" will be passed as template variable {{ html }} to the template. ' + \
