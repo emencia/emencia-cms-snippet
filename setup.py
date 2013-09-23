@@ -23,8 +23,7 @@ setup(
     ],
     install_requires=[
         'django-cms>=2.3',
-        #'djangocms_text_ckeditor==1.0.10',
-        #'djangocodemirror',
+        'djangocodemirror>=0.9.1',
     ],
     include_package_data=True,
     zip_safe=False

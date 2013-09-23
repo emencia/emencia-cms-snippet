@@ -1,4 +1,4 @@
 """
-"cms.plugins.snippet" (from djangocms) clone to extend it with some facilities
+"cms.plugins.snippet" (from djangocms) cloned to extend it with some facilities
 """
-__version__ = '2.3.6.3.1'
+__version__ = '2.3.6.3.2'
