@@ -9,6 +9,7 @@ class Snippet(models.Model):
     A snippet of HTML or a Django template
     """
     name = models.CharField(_("name"), max_length=255, unique=True)
+    slug = models.SlugField(_('slug'), max_length=75, unique=True, blank=False)
     html = models.TextField(_('HTML'), blank=False)
 
     template = models.CharField(_("template"), max_length=50, blank=True, \

@@ -16,7 +16,7 @@ class SnippetFragment(template.Node):
     def __init__(self, snippet_id_varname):
         """
         :type insert_instance_varname: string or object ``django.db.models.Model``
-        :param insert_instance_varname: Instance variable name or a string slug
+        :param insert_instance_varname: Instance variable name or a string slug or object id
         """
         self.snippet_id_varname = template.Variable(snippet_id_varname)
     
@@ -31,7 +31,10 @@ class SnippetFragment(template.Node):
         # Default assume this is directly an instance
         snippet_instance = self.snippet_id_varname.resolve(context)
         # Assume this is slug
-        if isinstance(snippet_instance, basestring) or isinstance(snippet_instance, int):
+        if isinstance(snippet_instance, basestring):
+            snippet_instance = Snippet.objects.get(slug=snippet_instance)
+        # Assume this is an id
+        elif isinstance(snippet_instance, int):
             snippet_instance = Snippet.objects.get(pk=snippet_instance)
         
         return mark_safe( self.get_content_render(context, snippet_instance) )
