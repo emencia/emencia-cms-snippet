@@ -15,11 +15,12 @@ This clone try to change as few orignal code as possible, actually the differenc
 
 * Adding a template tag to directly use snippet fragments in the templates, not only from CMS pages;
 * Add usage of `djangocodemirror`_ for the HTML editor;
+* Add a slug field;
 
 Requires
 --------
 
-* `DjangoCMS`_ version >= 2.3 (tested with 2.3.6) (should not work with >= 3.x);
+* `DjangoCMS`_ version >= 2.3 (tested with 2.3.6 and 2.4.3) (should not work with >= 3.x);
 * `djangocodemirror`_ 0.9.x;
 
 In the admin, the HTML content will be edited with the `djangocodemirror`_ editor.
@@ -65,11 +66,21 @@ Template tags
 Use the template tags in your templates : ::
 
     {% load snippet_tags %}
-    {% snippet_fragment [Snippet ID or instance] %}
+    {% snippet_fragment [Snippet ID or slug or instance] %}
 
 Like this : ::
 
     {% load snippet_tags %}
     {% snippet_fragment 42 %}
+
+Or with the slug : ::
+
+    {% load snippet_tags %}
+    {% snippet_fragment 'my-snippet' %}
     
-The required argument is for the Snippet ID or a Snippet instance if you want.
+The first argument is required, you can use either 
+
+* The Snippet ID;
+* The Snippet slug;
+* The Snippet instance.
+
