@@ -1,7 +1,7 @@
 
 from south.db import db
 from django.db import models
-from cms.plugins.snippet.models import *
+#from cms.plugins.snippet.models import *
 
 class Migration:
     needed_by = (

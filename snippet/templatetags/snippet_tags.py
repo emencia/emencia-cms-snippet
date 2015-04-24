@@ -5,7 +5,7 @@ Common templates tags for porticus
 from django import template
 from django.utils.safestring import mark_safe
 
-from cms.plugins.snippet.models import Snippet
+from snippet.models import Snippet
 
 register = template.Library()
 
