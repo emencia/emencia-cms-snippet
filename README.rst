@@ -84,3 +84,10 @@ The first argument is required, you can use either
 * The Snippet slug;
 * The Snippet instance.
 
+Use as a template block with fallback : ::
+
+    {% snippet_fragment 'my-snippet' or %}
+        ... clumsy safe ...
+    {% endsnippet_fragment %}
+
+In case there is no snippet instance/id/slug, fallback template will be rendered.
