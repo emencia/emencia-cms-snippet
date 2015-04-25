@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+
 """
-Common templates tags for porticus
+Snippet templates tags
 """
+
+from contextlib import contextmanager
+import logging
+
 from django import template
 from django.utils.safestring import mark_safe
 
@@ -9,35 +14,67 @@ from snippet.models import Snippet
 
 register = template.Library()
 
+logger = logging.getLogger('django.request')
+
+@contextmanager
+def exceptionless(truth):
+    # Accepts one truth parameter, when 'False' normal behavior
+    # when 'True' any expection will be suppressed but logged
+    # TODO: improve logging
+    try:
+        yield
+    except Exception as e:
+        if truth:
+            # wARN!
+            logger.warning(e)
+        else:
+            raise e
+
+
 class SnippetFragment(template.Node):
+
     """
     Get a snippet HTML fragment
     """
-    def __init__(self, snippet_id_varname):
+
+    def __init__(self, snippet_id_varname, *args):
         """
         :type insert_instance_varname: string or object ``django.db.models.Model``
         :param insert_instance_varname: Instance variable name or a string slug or object id
         """
+        self.parse_until = False
         self.snippet_id_varname = template.Variable(snippet_id_varname)
-    
+        if args and args[0] == "or":
+            # We are in a 'parse ultil' case
+            # ALERT: Exceptions will be suppresed
+            self.parse_until = True
+            self.nodelist = args[1]
+
     def render(self, context):
         """
         :type context: object ``django.template.Context``
         :param context: Context tag object
-        
+
         :rtype: string
         :return: the HTML for the snippet
         """
         # Default assume this is directly an instance
         snippet_instance = self.snippet_id_varname.resolve(context)
         # Assume this is slug
-        if isinstance(snippet_instance, basestring):
-            snippet_instance = Snippet.objects.get(slug=snippet_instance)
-        # Assume this is an id
-        elif isinstance(snippet_instance, int):
-            snippet_instance = Snippet.objects.get(pk=snippet_instance)
-        
-        return mark_safe( self.get_content_render(context, snippet_instance) )
+        with exceptionless(self.parse_until) as succeeded:
+            if isinstance(snippet_instance, basestring):
+                snippet_instance = Snippet.objects.get(slug=snippet_instance)
+            # Assume this is an id
+            elif isinstance(snippet_instance, int):
+                snippet_instance = Snippet.objects.get(pk=snippet_instance)
+
+            return mark_safe(self.get_content_render(context,
+                                                     snippet_instance))
+
+        # Rely on the fact that manager something went wrong
+        # render the fallback template
+        return self.nodelist.render(context)
+
 
     def get_content_render(self, context, instance):
         """
@@ -55,24 +92,35 @@ class SnippetFragment(template.Node):
                 t = template.Template(instance.html)
                 content = t.render(template.Context(context))
         except template.TemplateDoesNotExist, e:
-            content = _('Template %(template)s does not exist.') % {'template': instance.template}
+            content = _('Template %(template)s does not exist.') % {
+                'template': instance.template}
         except Exception, e:
             content = str(e)
         return content
+
 
 @register.tag(name="snippet_fragment")
 def do_snippet_fragment(parser, token):
     """
     Display a snippet HTML fragment
-    
+
     Usage : ::
-    
+
         {% snippet_fragment [Snippet ID or instance] %}
+
+        {% snippet_fragment [Snippet ID or instance] or %}
+            ...This is a fallback...
+        {% endsnippet_fragment%}
     """
     args = token.split_contents()
     if len(args) < 2:
-        raise template.TemplateSyntaxError, "You need to specify at less an \"Snippet\" ID or instance"
-    else:
-        return SnippetFragment(*args[1:])
+        raise template.TemplateSyntaxError(
+            "You need to specify at less an \"Snippet\" ID or instance")
+    if "or" in args:
+        # Catch contents between tags and pass to renderer
+        args.append(parser.parse(('endsnippet_fragment',)))
+        parser.delete_first_token()
+    return SnippetFragment(*args[1:])
+
 
 do_snippet_fragment.is_safe = True
