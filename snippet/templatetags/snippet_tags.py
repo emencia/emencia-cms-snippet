@@ -1,33 +1,32 @@
 # -*- coding: utf-8 -*-
 
 """
-Snippet templates tags
+Snippet template tags
 """
 
 from contextlib import contextmanager
-import logging
 
 from django import template
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from snippet.models import Snippet
 
 register = template.Library()
 
-logger = logging.getLogger('django.request')
 
 @contextmanager
 def exceptionless(truth):
     # Accepts one truth parameter, when 'False' normal behavior
-    # when 'True' any expection will be suppressed but logged
-    # TODO: improve logging
+    # when 'True' any expection will be suppressed
     try:
         yield
     except Exception as e:
         if truth:
-            # wARN!
-            logger.warning(e)
+            # WARNING: suppresing expcetion
+            pass
         else:
+            # Reraising exception
             raise e
 
 
@@ -44,7 +43,7 @@ class SnippetFragment(template.Node):
         """
         self.parse_until = False
         self.snippet_id_varname = template.Variable(snippet_id_varname)
-        if args and args[0] == "or":
+        if args and "or" in args:
             # We are in a 'parse ultil' case
             # ALERT: Exceptions will be suppresed
             self.parse_until = True
@@ -61,7 +60,7 @@ class SnippetFragment(template.Node):
         # Default assume this is directly an instance
         snippet_instance = self.snippet_id_varname.resolve(context)
         # Assume this is slug
-        with exceptionless(self.parse_until) as succeeded:
+        with exceptionless(self.parse_until):
             if isinstance(snippet_instance, basestring):
                 snippet_instance = Snippet.objects.get(slug=snippet_instance)
             # Assume this is an id
@@ -74,7 +73,6 @@ class SnippetFragment(template.Node):
         # Rely on the fact that manager something went wrong
         # render the fallback template
         return self.nodelist.render(context)
-
 
     def get_content_render(self, context, instance):
         """
@@ -96,6 +94,11 @@ class SnippetFragment(template.Node):
                 'template': instance.template}
         except Exception, e:
             content = str(e)
+            if self.parse_until:
+                # In case we are running 'exceptionless'
+                # Re-raise exception in order not to get the
+                # error rendered
+                raise
         return content
 
 
@@ -110,12 +113,12 @@ def do_snippet_fragment(parser, token):
 
         {% snippet_fragment [Snippet ID or instance] or %}
             ...This is a fallback...
-        {% endsnippet_fragment%}
+        {% endsnippet_fragment %}
     """
     args = token.split_contents()
     if len(args) < 2:
         raise template.TemplateSyntaxError(
-            "You need to specify at less an \"Snippet\" ID or instance")
+            "You need to specify at least an \"Snippet\" ID or instance")
     if "or" in args:
         # Catch contents between tags and pass to renderer
         args.append(parser.parse(('endsnippet_fragment',)))
