@@ -3,7 +3,12 @@ from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
-from django.utils.text import slugify
+try:
+    # Django >= 1.6 structure
+    from django.utils.text import slugify
+except ImportError:
+    # Fallback on Django 1.4/1.5 structure
+    from django.template.defaultfilters import slugify
 
 class Migration(DataMigration):
 

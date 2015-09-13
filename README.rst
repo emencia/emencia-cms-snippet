@@ -20,7 +20,8 @@ This clone try to change as few orignal code as possible, actually the differenc
 Requires
 --------
 
-* `DjangoCMS`_ version >= 2.3 (tested with 2.3.6 and 2.4.3) (should not work with >= 3.x);
+* Django 1.4 to 1.6;
+* `DjangoCMS`_ version 2.3.6 to 3.0.x;
 * `djangocodemirror`_ 0.9.x;
 
 In the admin, the HTML content will be edited with the `djangocodemirror`_ editor.
